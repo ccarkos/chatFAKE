@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT</title>
+</head>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ea273bc1; /* Vermelho claro como base */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+          }
+          
+          h1 {
+            color: #f01818; /* Vermelho puro e intenso */
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+          }
+          
+          #mensagens {
+            list-style: none;
+            padding: 0;
+            width: 80%;
+            max-width: 600px;
+            background-color: #ff8a80; /* Vermelho um pouco mais escuro */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+          }
+          
+          #mensagens li {
+            padding: 15px;
+            border-bottom: 1px solid #f44336; /* Vermelho vibrante para as linhas */
+            animation: fadeIn 0.5s ease-in-out;
+          }
+          
+          #mensagens li:last-child {
+            border-bottom: none;
+          }
+          
+          form {
+            display: flex;
+            width: 80%;
+            max-width: 600px;
+          }
+          
+          input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e53935; /* Vermelho mais forte para as bordas */
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+          }
+          
+          button {
+            background-color: #b71c1c; /* Vermelho escuro e intenso */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+          }
+          
+          button:hover {
+            background-color: #880e4f; /* Vermelho mais escuro e profundo no hover */
+          }
+          
+          /* Animação de Fade In para as mensagens */
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+    </style>
+
+<body>
+    
+    <h1>Chat FAKE</h1>
+    <ul id="mensagens"></ul>
+    <form>
+        <input type="text" id="nome" placeholder="Nome do Usuário">
+        <input type="text" id="mensagem" placeholder="Digite a sua mensagem">
+        <button>Enviar</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        
+        // → CRIA UMA INSTANCIA DO socket.io ↓
+
+        const socket = io();
+
+        // SELECIONAR O INPUT NOME DO USUÁRIO ↓
+ 
+        const nomeInput = document.getElementById('nome');
+
+        // SELECIONAR O INPUT DA MENSAGEM ↓
+
+        const mensagemInput = document.getElementById('mensagem');
+
+        // SELECIONE A LISTA DE MENSAGEM ↓
+
+        const mensagens = document.getElementById('mensagens');
+
+        // → ADICIONAR UM EVENTO PARA O ENVIO DO FORMULÁRIO ↓
+
+        document.querySelector('form').addEventListener('submit', event => {
+            
+            // PREVINE O ENVIO DO FORMULÁRIO ↓
+            event.preventDefault();
+            
+            // OBTEM O VALOR DO INPUT NOME DE USUÁRIO ↓
+            const nome = nomeInput.value;
+            
+            // OBTEM O VALOR DO INPUT MENSAGEM ↓
+            const mensagem = mensagemInput.value;
+
+            // → VERIFICA SE OS CAMPOS FORAM PREENCHIDOS ↓
+            // → VERIFICA SE OS VALORES SÃO VÁLIDOS (espaço)
+            // → ENVIA OS EVENTOS
+            // → REMOVE OS ESPAÇOS
+            nome.trim() && mensagem.trim() && socket.emit('chat message', {nome, mensagem});
+            
+            // LIMPA O INPUT DA MENSAGEM (caixa de texto)
+            mensagemInput.value = '';
+
+            // DESABILITAR O INPUT NOME DE USUÁRIO
+            nomeInput.disabled = true;
+        });
+
+        // → ADICIONA O EVENTO PARA CADA MENSAGEM RECEBIDA DO SERVIDOR
+        socket.on('chat message', dados => {
+
+            // CRIAR UM ELEMENTO DE LISTA PARA EXIBIR A MENSAGEM ↓
+            const lista = document.createElement('li');
+
+            // DEFINIR O TEXTO DA MENSAGEM ↓
+            lista.textContent = `${dados.nome}: ${dados.mensagem}`;
+
+            // ADICIONA O ELEMENTO DE LISTA ↓
+            mensagens.appendChild(lista);
+        })
+
+    </script>
+
+</body>
+</html>
